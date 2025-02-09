@@ -27,3 +27,42 @@ todo:
 - Get Credential Revocation List (auditor should be able to get the revocation list)
 - Get Credential Revocation List Status (auditor should be able to get the status of the revocation list)
 """
+
+"""
+required functions:
+create_hash_of_battery_vc()
+find_latest_battery_vc(): by timestamp
+create_permission_vc(): oem creates permission vc for repairer
+create_initial_battery_vc(): oem creates initial battery vc for battery
+
+oem:
+- create_hash_of_battery_vc()
+- find_latest_battery_vc()
+- create_permission_vc()
+- create_initial_battery_vc()
+- revoke_permission_vc()
+- revoke_battery_vc()
+
+repairer:
+- create_hash_of_battery_vc()
+- find_latest_battery_vc()
+- create_permission_vc()
+
+
+system verification:
+- verify_repairer_has_permission(): checks if repairer has permission to issue credential for the battery
+
+
+verifier:
+- list_chain_of_battery_changes(given_battery): lists all the battery changes (VCs)
+- list_permission_vc(given_battery): lists all the permission VCs
+
+    cursor suggestions:
+    - display_revocation_status(): lists all the revocation statuses (VCs)
+    - display_credential_status(): lists all the credential statuses (VCs)
+    - display_credential_revocation_list(): lists all the credential revocation lists (VCs)
+    - display_credential_revocation_list_status(): lists all the credential revocation list statuses (VCs)
+
+
+
+"""
