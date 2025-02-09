@@ -39,7 +39,7 @@ class OEMService:
 
         # Then create DID using query parameters
         params = {
-            "domain": f"battery-{serial_number}.example.com",
+            "domain": f"battery-{serial_number}.oem.com",
             "path": f"/battery/{serial_number}",
             "keyId": key,
             "alias": f"battery-{serial_number}",
