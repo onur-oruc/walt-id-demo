@@ -87,8 +87,16 @@ async def onboard_oem_issuer(current_user: dict = Depends(get_current_user)):
 async def create_oem_vc(
     serial_number: str, current_user: dict = Depends(get_current_user)
 ):
+    # todo: Add more fields in the request that will be written into the initial VC.
     oem = OEMService()
-    return oem.create_initial_battery_vc(serial_number, current_user["token"])
+    battery_did = oem.get_battery_did_by_serial_number(
+        serial_number, current_user["token"]
+    )
+    if not battery_did:
+        return {"status": "error", "message": "Battery DID not found"}
+    return oem.create_initial_battery_vc(
+        battery_did, serial_number, current_user["token"]
+    )
 
 
 @app.get("/oem/wallet/dids")

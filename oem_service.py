@@ -78,7 +78,9 @@ class OEMService:
     def create_initial_battery_vc(self, battery_did, serial_number, token):
         # Load OEM issuer credentials
         # first we need to get the issuer did by serial number
-        issuer_did = self.get_battery_did_by_serial_number(serial_number)
+        if not battery_did:
+            return {"status": "error", "message": "Battery DID not found"}
+
         try:
             with open("oem_issuer_credentials.json", "r") as f:
                 issuer_creds = json.load(f)
