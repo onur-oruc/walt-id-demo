@@ -4,6 +4,7 @@ import json
 import hashlib
 from fastapi import status
 from datetime import datetime
+from vc_issuer import VCIssuer
 
 
 class OEMService:
@@ -74,15 +75,24 @@ class OEMService:
                 "message": f"Unknown error: {response.status_code}",
             }
 
-    def create_initial_battery_vc(self, battery_did, serial_number):
-        credential = {
-            "@context": [
-                "https://www.w3.org/2018/credentials/v1",
-                "https://w3id.org/security/suites/jws-2020/v1",
-            ],
-            "type": ["VerifiableCredential", "BatteryCredential"],
-            "issuer": self.oem_did,
-            "issuanceDate": datetime.utcnow().isoformat() + "Z",
+    def create_initial_battery_vc(self, battery_did, serial_number, token):
+        # Load OEM issuer credentials
+        try:
+            with open("oem_issuer_credentials.json", "r") as f:
+                issuer_creds = json.load(f)
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Failed to load issuer credentials: {str(e)}",
+            }
+
+        # Prepare credential data
+        credential_data = {
+            "issuer": {
+                "id": issuer_creds["issuerDid"],
+                "name": "OEM Battery Manufacturer",
+                "type": ["Organization", "BatteryManufacturer"],
+            },
             "credentialSubject": {
                 "id": battery_did,
                 "type": "Battery",
@@ -91,13 +101,50 @@ class OEMService:
                 "manufacturingDate": datetime.utcnow().isoformat() + "Z",
                 "initialHealth": 100,
                 "warrantyStatus": "active",
+                "technicalDetails": {
+                    "capacity": "5000mAh",
+                    "chemistry": "Li-ion",
+                    "voltage": "3.7V",
+                    "maxChargeCurrent": "2A",
+                    "maxDischargeCurrent": "3A",
+                    "operatingTemperature": "-20°C to 60°C",
+                },
+                "qualityControl": {
+                    "testResults": "PASSED",
+                    "inspector": "QC-123",
+                    "testDate": datetime.utcnow().isoformat() + "Z",
+                    "testBatch": "B2024-001",
+                },
             },
         }
 
-        response = requests.post(
-            f"{self.issuer_api}/credentials/issue", json={"credential": credential}
+        # Fields to be selectively disclosed
+        selective_disclosure_fields = [
+            "credentialSubject.technicalDetails",
+            "credentialSubject.qualityControl",
+            "credentialSubject.initialHealth",
+            "credentialSubject.warrantyStatus",
+        ]
+
+        # Issue the VC using SD-JWT
+        vc_issuer = VCIssuer()
+        result = vc_issuer.issue_sd_jwt_vc(
+            issuer_key=issuer_creds["issuerKey"],
+            issuer_did=issuer_creds["issuerDid"],
+            subject_did=battery_did,
+            credential_data=credential_data,
+            selective_disclosure_fields=selective_disclosure_fields,
+            token=token,
         )
-        return response.json()
+
+        if result:
+            return {
+                "status": "success",
+                "message": "Battery VC created with selective disclosure",
+                "vc": result,
+            }
+        else:
+            return {"status": "error", "message": "Failed to create battery VC"}
 
     def create_hash_of_battery_vc(self, battery_vc):
         vc_string = json.dumps(battery_vc, sort_keys=True)
@@ -115,3 +162,5 @@ class OEMService:
 
         response = requests.post(url, json=body)
         return response.json()
+
+    def get_battery_did_by_serial_number(self, serial_number, token): ...
