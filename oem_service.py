@@ -2,6 +2,7 @@ import os
 import requests
 import json
 import hashlib
+from fastapi import status
 from datetime import datetime
 
 
@@ -12,7 +13,31 @@ class OEMService:
         self.wallet_id = os.getenv("OEM_WALLET_ID")
         self.oem_did = None
 
+    def create_jwk_key(self, token: str) -> str:
+        """
+        Create a JWK key in the wallet
+        Returns the key id if the key is created successfully
+        """
+        url = f"{self.wallet_api}/wallet-api/wallet/{self.wallet_id}/keys/generate"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        data = {"backend": "jwk", "keyType": "Ed25519"}
+
+        response = requests.post(url, json=data, headers=headers)
+        print(f"Key creation response status: {response.status_code}")
+        print(f"Key creation response content: {response.text}")
+
+        return response.text
+
     def create_battery_did(self, serial_number, token):
+        # First create a key
+        key = self.create_jwk_key(token)
+        if not key:
+            return {"status": "error", "message": "Failed to create key for DID"}
+
+        # Then create DID
         url = f"{self.wallet_api}/wallet-api/wallet/{self.wallet_id}/dids/create/web"
         headers = {
             "Authorization": f"Bearer {token}",
@@ -21,14 +46,14 @@ class OEMService:
         data = {
             "domain": f"battery-{serial_number}.example.com",
             "path": f"/battery/{serial_number}",
-            "keyId": f"battery-key-{serial_number}",
+            "keyId": key,
             "alias": f"battery-{serial_number}",
         }
 
         response = requests.post(url, json=data, headers=headers)
 
-        print(f"Response status: {response.status_code}")
-        print(f"Response content: {response.text}")
+        print(f"DID creation response status: {response.status_code}")
+        print(f"DID creation response content: {response.text}")
 
         if response.status_code == 200:
             response_data = response.json()
