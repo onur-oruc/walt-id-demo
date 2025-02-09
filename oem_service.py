@@ -37,30 +37,30 @@ class OEMService:
         if not key:
             return {"status": "error", "message": "Failed to create key for DID"}
 
-        # Then create DID
-        url = f"{self.wallet_api}/wallet-api/wallet/{self.wallet_id}/dids/create/web"
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        }
-        data = {
+        # Then create DID using query parameters
+        params = {
             "domain": f"battery-{serial_number}.example.com",
             "path": f"/battery/{serial_number}",
             "keyId": key,
             "alias": f"battery-{serial_number}",
         }
 
-        response = requests.post(url, json=data, headers=headers)
+        url = f"{self.wallet_api}/wallet-api/wallet/{self.wallet_id}/dids/create/web"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+
+        response = requests.post(url, params=params, headers=headers)
 
         print(f"DID creation response status: {response.status_code}")
         print(f"DID creation response content: {response.text}")
 
-        if response.status_code == 200:
-            response_data = response.json()
+        if response.status_code == status.HTTP_200_OK:
             return {
                 "status": "success",
                 "message": "DID created",
-                "did": response_data.get("content", {}).get("did"),
+                "did": response.text,
             }
         elif response.status_code == 400:
             return {"status": "error", "message": "DID could not be created"}
