@@ -102,3 +102,16 @@ class OEMService:
     def create_hash_of_battery_vc(self, battery_vc):
         vc_string = json.dumps(battery_vc, sort_keys=True)
         return hashlib.sha256(vc_string.encode()).hexdigest()
+
+    def create_oem_issuer_did_web(self, token):
+        url = f"{self.issuer_api}/onboard/issuer"
+        body = {
+            "key": {"backend": "jwk", "keyType": "secp256k1"},
+            "did": {
+                "method": "web",
+                "config": {"domain": "oem.com", "path": "/oem"},
+            },
+        }
+
+        response = requests.post(url, json=body)
+        return response.json()

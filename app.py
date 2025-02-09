@@ -77,6 +77,12 @@ async def create_battery_did(
     return oem.create_battery_did(request["serial_number"], current_user["token"])
 
 
+@app.post("/issuer/oem/onboard")
+async def onboard_oem_issuer(current_user: dict = Depends(get_current_user)):
+    oem = OEMService()
+    return oem.create_oem_issuer_did_web(current_user["token"])
+
+
 if __name__ == "__main__":
     import uvicorn
 
