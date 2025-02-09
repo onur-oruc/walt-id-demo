@@ -77,6 +77,8 @@ class OEMService:
 
     def create_initial_battery_vc(self, battery_did, serial_number, token):
         # Load OEM issuer credentials
+        # first we need to get the issuer did by serial number
+        issuer_did = self.get_battery_did_by_serial_number(serial_number)
         try:
             with open("oem_issuer_credentials.json", "r") as f:
                 issuer_creds = json.load(f)
@@ -163,4 +165,18 @@ class OEMService:
         response = requests.post(url, json=body)
         return response.json()
 
-    def get_battery_did_by_serial_number(self, serial_number, token): ...
+    def get_all_wallet_dids(self, token):
+        url = f"{self.wallet_api}/wallet-api/wallet/{self.wallet_id}/dids"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        response = requests.get(url, headers=headers)
+        return response.json()
+
+    def get_battery_did_by_serial_number(self, serial_number, token):
+        all_dids = self.get_all_wallet_dids(token)
+        for did in all_dids:
+            if did["alias"] == f"battery-{serial_number}":
+                return did["did"]
+        return None

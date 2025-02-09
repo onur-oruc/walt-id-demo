@@ -91,6 +91,20 @@ async def create_oem_vc(
     return oem.create_initial_battery_vc(serial_number, current_user["token"])
 
 
+@app.get("/oem/wallet/dids")
+async def get_all_wallet_dids(current_user: dict = Depends(get_current_user)):
+    oem = OEMService()
+    return oem.get_all_wallet_dids(current_user["token"])
+
+
+@app.get("/oem/wallet/dids/{serial_number}")
+async def get_battery_did_by_serial_number(
+    serial_number: str, current_user: dict = Depends(get_current_user)
+):
+    oem = OEMService()
+    return oem.get_battery_did_by_serial_number(serial_number, current_user["token"])
+
+
 if __name__ == "__main__":
     import uvicorn
 
