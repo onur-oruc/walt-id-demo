@@ -2,3 +2,4 @@
 .venv
 .vscode
 __pycache__
+oem_issuer_credentials.json
