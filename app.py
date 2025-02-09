@@ -83,6 +83,14 @@ async def onboard_oem_issuer(current_user: dict = Depends(get_current_user)):
     return oem.create_oem_issuer_did_web(current_user["token"])
 
 
+@app.post("/issuer/oem/battery/{serial_number}/initial-vc")
+async def create_oem_vc(
+    serial_number: str, current_user: dict = Depends(get_current_user)
+):
+    oem = OEMService()
+    return oem.create_initial_battery_vc(serial_number, current_user["token"])
+
+
 if __name__ == "__main__":
     import uvicorn
 
