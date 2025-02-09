@@ -1,17 +1,21 @@
 import os
-import sys
+import requests
 import dotenv
+from oem_service import OEMService
 
 dotenv.load_dotenv()
 
 ISSUER_API_URL = os.getenv("ISSUER_API_URL")
 WALLET_API_URL = os.getenv("WALLET_API_URL")
 VERIFIER_API_URL = os.getenv("VERIFIER_API_URL")
+OEM_WALLET_ID = os.getenv("OEM_WALLET_ID")
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
-print(ISSUER_API_URL)
-print(WALLET_API_URL)
-print(VERIFIER_API_URL)
-
+# print("Environment variables:")
+# print(f"ISSUER_API_URL: {ISSUER_API_URL}")
+# print(f"WALLET_API_URL: {WALLET_API_URL}")
+# print(f"VERIFIER_API_URL: {VERIFIER_API_URL}")
+# print(f"OEM_WALLET_ID: {OEM_WALLET_ID}")
 
 """
 todo: 
@@ -66,3 +70,43 @@ verifier:
 
 
 """
+
+
+def get_token(username: str, password: str):
+    response = requests.post(
+        f"{API_URL}/token", data={"username": username, "password": password}
+    )
+    if response.status_code == 200:
+        return response.json()["access_token"]
+    else:
+        raise Exception("Authentication failed")
+
+
+def main():
+    try:
+        # Get authentication token
+        print("Getting authentication token...")
+        token = get_token("oem_user", "oem_password")  # Replace with actual credentials
+
+        # Initialize OEM service
+        oem = OEMService()
+
+        # Create battery DID
+        print("\nCreating Battery DID...")
+        serial_number = "BAT123456"
+        result = oem.create_battery_did(serial_number, token)
+
+        if result["status"] == "success":
+            print(f"Success: {result['message']}")
+            print(f"DID: {result['did']}")
+            battery_did = result["did"]
+        else:
+            print(f"Error: {result['message']}")
+            return
+
+    except Exception as e:
+        print(f"Error in main: {e}")
+
+
+if __name__ == "__main__":
+    main()

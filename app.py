@@ -4,10 +4,11 @@ from fastapi.security import OAuth2PasswordBearer
 import auth
 import did_service
 import key_service
+from oem_service import OEMService
 import vc_issuer
 import vc_verifier
 from pydantic import BaseModel
-import jwt
+from jose import jwt, JWTError
 from typing import Optional
 
 
@@ -54,30 +55,26 @@ async def health_check():
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, options={"verify_signature": False})
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-        return {"user_id": user_id, "token": token}
-    except jwt.JWTError:
-        raise credentials_exception
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return {"token": token}
 
 
 @app.get("/protected")
 async def protected_route(user_data: dict = Depends(get_current_user)):
-    return {
-        "message": "This is a protected route",
-        "user_id": user_data["user_id"],
-        "decoded_token": jwt.decode(
-            user_data["token"], options={"verify_signature": False}
-        ),
-    }
+    return {"message": "This is a protected route", "token": user_data["token"]}
+
+
+@app.post("/battery/did")
+async def create_battery_did(
+    request: dict, current_user: dict = Depends(get_current_user)
+):
+    oem = OEMService()
+    return oem.create_battery_did(request["serial_number"], current_user["token"])
 
 
 if __name__ == "__main__":
