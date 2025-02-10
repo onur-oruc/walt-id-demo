@@ -145,7 +145,8 @@ class OEMService:
             return {
                 "status": "success",
                 "message": "Battery VC created with selective disclosure",
-                "vc": result,
+                "vc": result["credential"],
+                "vc_id": result["credential_id"],
             }
         else:
             return {"status": "error", "message": "Failed to create battery VC"}

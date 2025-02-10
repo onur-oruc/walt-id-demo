@@ -75,4 +75,12 @@ class VCIssuer:
         print(f"VC issuance response status: {response.status_code}")
         print(f"VC issuance response content: {response.text}")
 
-        return response.text if response.status_code == status.HTTP_200_OK else None
+        if response.status_code != status.HTTP_200_OK:
+            return None
+
+        result = {
+            "credential": response.text,
+            "credential_id": credential_id,
+        }
+        return result
+
