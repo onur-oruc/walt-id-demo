@@ -2,6 +2,8 @@ import os
 import requests
 from datetime import datetime, timedelta
 import uuid
+import json
+from fastapi import status
 
 
 class VCIssuer:
@@ -28,42 +30,49 @@ class VCIssuer:
 
         # Generate unique ID for the credential
         credential_id = str(uuid.uuid4())
-        issuance_date = datetime.utcnow()
-        expiration_date = issuance_date + timedelta(days=365)
+        issuance_date = datetime.utcnow().isoformat() + "Z"
+        expiration_date = (datetime.utcnow() + timedelta(days=365)).isoformat() + "Z"
+
+        # Create selective disclosure fields
+        sd_fields = {}
+        for field in selective_disclosure_fields:
+            sd_fields[field] = {"sd": True}
 
         body = {
             "issuerKey": issuer_key,
-            "credentialConfigurationId": "BatteryCredential_jwt_vc_json",
+            "credentialConfigurationId": "OpenBadgeCredential_jwt_vc_json",
             "credentialData": {
                 "@context": [
                     "https://www.w3.org/2018/credentials/v1",
-                    "https://w3id.org/security/suites/jws-2020/v1",
+                    "https://purl.imsglobal.org/spec/ob/v3p0/context.json",
                 ],
                 "id": f"urn:uuid:{credential_id}",
-                "type": ["VerifiableCredential", "BatteryCredential"],
-                **credential_data,
-            },
-            "mapping": {
-                "id": "<uuid>",
-                "issuer": {"id": "<issuerDid>"},
-                "credentialSubject": {"id": "<subjectDid>"},
-                "issuanceDate": "<timestamp>",
-                "expirationDate": "<timestamp-in:365d>",
+                "type": ["VerifiableCredential", "OpenBadgeCredential"],
+                "issuer": credential_data["issuer"],
+                "credentialSubject": credential_data["credentialSubject"],
             },
             "selectiveDisclosure": {
-                "fields": {
-                    field: {"sd": True} for field in selective_disclosure_fields
-                },
+                "fields": sd_fields,
                 "decoyMode": "NONE",
                 "decoys": 0,
+            },
+            "mapping": {
+                "id": credential_id,
+                "issuer": {"id": issuer_did},
+                "credentialSubject": {"id": subject_did},
+                "issuanceDate": issuance_date,
+                "expirationDate": expiration_date,
             },
             "authenticationMethod": "PRE_AUTHORIZED",
             "issuerDid": issuer_did,
             "standardVersion": "DRAFT13",
         }
 
-        response = requests.post(url, json=body, headers=headers)
+        # Ensure proper JSON formatting with double quotes
+        body_json = json.dumps(body, ensure_ascii=False, separators=(",", ":"))
+
+        response = requests.post(url, json=json.loads(body_json), headers=headers)
         print(f"VC issuance response status: {response.status_code}")
         print(f"VC issuance response content: {response.text}")
 
-        return response.json() if response.status_code == 200 else None
+        return response.text if response.status_code == status.HTTP_200_OK else None
