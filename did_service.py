@@ -14,3 +14,5 @@ def create_did(did: str):
     response = requests.post(url, headers=headers, json=data)
     return response.json()
 
+
+def generate_did_document(did: str): ...
