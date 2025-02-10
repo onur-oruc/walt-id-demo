@@ -12,6 +12,7 @@ class OEMService:
         self.issuer_api = os.getenv("ISSUER_API_URL")
         self.wallet_api = os.getenv("WALLET_API_URL")
         self.wallet_id = os.getenv("OEM_WALLET_ID")
+        self.oem_domain = os.getenv("OEM_DOMAIN")
         self.oem_did = None
 
     def create_jwk_key(self, token: str) -> str:
@@ -40,8 +41,8 @@ class OEMService:
 
         # Then create DID using query parameters
         params = {
-            "domain": f"battery-{serial_number}.oem.com",
-            "path": f"/battery/{serial_number}",
+            "domain": f"{self.oem_domain}",
+            "path": f"/oem/battery/{serial_number}",
             "keyId": key,
             "alias": f"battery-{serial_number}",
         }
