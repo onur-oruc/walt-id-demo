@@ -3,3 +3,4 @@
 .vscode
 __pycache__
 oem_issuer_credentials.json
+working_sdjwt_issue_rquest_body.json

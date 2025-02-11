@@ -29,9 +29,6 @@ class VCIssuer:
         }
 
         # Generate unique ID for the credential
-        credential_id = str(uuid.uuid4())
-        issuance_date = datetime.utcnow().isoformat() + "Z"
-        expiration_date = (datetime.utcnow() + timedelta(days=365)).isoformat() + "Z"
 
         # Create selective disclosure fields
         sd_fields = {}
@@ -46,7 +43,7 @@ class VCIssuer:
                     "https://www.w3.org/2018/credentials/v1",
                     "https://purl.imsglobal.org/spec/ob/v3p0/context.json",
                 ],
-                "id": f"urn:uuid:{credential_id}",
+                "id": "urn:uuid:THIS WILL BE REPLACED WITH DYNAMIC DATA FUNCTION (see below)",
                 "type": ["VerifiableCredential", "OpenBadgeCredential"],
                 "issuer": credential_data["issuer"],
                 "credentialSubject": credential_data["credentialSubject"],
@@ -57,11 +54,11 @@ class VCIssuer:
                 "decoys": 0,
             },
             "mapping": {
-                "id": credential_id,
-                "issuer": {"id": issuer_did},
-                "credentialSubject": {"id": subject_did},
-                "issuanceDate": issuance_date,
-                "expirationDate": expiration_date,
+                "id": "<uuid>",
+                "issuer": {"id": "<issuerDid>"},
+                "credentialSubject": {"id": "<subjectDid>"},
+                "issuanceDate": "<timestamp>",
+                "expirationDate": "<timestamp-in:365d>",
             },
             "authenticationMethod": "PRE_AUTHORIZED",
             "issuerDid": issuer_did,
@@ -78,9 +75,4 @@ class VCIssuer:
         if response.status_code != status.HTTP_200_OK:
             return None
 
-        result = {
-            "credential": response.text,
-            "credential_id": credential_id,
-        }
-        return result
-
+        return response.text

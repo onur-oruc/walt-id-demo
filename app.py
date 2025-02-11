@@ -88,6 +88,7 @@ async def create_oem_vc(
     serial_number: str, current_user: dict = Depends(get_current_user)
 ):
     # todo: Add more fields in the request that will be written into the initial VC.
+    # todo: from the default request body, modify the fields issuerDid, selectiveDisclosure, credentialData.credentialSubject, credentialData.issuer, credentialData.name
     oem = OEMService()
     battery_did = oem.get_battery_did_by_serial_number(
         serial_number, current_user["token"]

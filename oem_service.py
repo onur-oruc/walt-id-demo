@@ -1,9 +1,10 @@
 import os
+import uuid
 import requests
 import json
 import hashlib
 from fastapi import status
-from datetime import datetime
+from datetime import datetime, timezone
 from vc_issuer import VCIssuer
 
 
@@ -94,31 +95,59 @@ class OEMService:
         # Prepare credential data
         credential_data = {
             "issuer": {
-                "id": issuer_creds["issuerDid"],
-                "name": "OEM Battery Manufacturer",
-                "type": ["Organization", "BatteryManufacturer"],
+                "type": ["Battery OEM"],
+                "name": f"Initial Battery VC for {serial_number}",
+                "url": "https://www.jff.org/",
+                "image": "https://w3c-ccg.github.io/vc-ed/plugfest-1-2022/images/JFF_LogoLockup.png",
             },
+            # "credentialSubject": {
+            #     "id": battery_did,
+            #     "type": "Battery",
+            #     "serialNumber": serial_number,
+            #     "manufacturer": "OEM",
+            #     "manufacturingDate": datetime.utcnow().isoformat() + "Z",
+            #     "initialHealth": 100,
+            #     "warrantyStatus": "active",
+            #     "technicalDetails": {
+            #         "capacity": "5000mAh",
+            #         "chemistry": "Li-ion",
+            #         "voltage": "3.7V",
+            #         "maxChargeCurrent": "2A",
+            #         "maxDischargeCurrent": "3A",
+            #         "operatingTemperature": "-20°C to 60°C",
+            #     },
+            #     "qualityControl": {
+            #         "testResults": "PASSED",
+            #         "inspector": "QC-123",
+            #         "testDate": datetime.utcnow().isoformat() + "Z",
+            #         "testBatch": "B2024-001",
+            #     },
+            # },
             "credentialSubject": {
-                "id": battery_did,
-                "type": "Battery",
-                "serialNumber": serial_number,
-                "manufacturer": "OEM",
-                "manufacturingDate": datetime.utcnow().isoformat() + "Z",
-                "initialHealth": 100,
-                "warrantyStatus": "active",
-                "technicalDetails": {
-                    "capacity": "5000mAh",
-                    "chemistry": "Li-ion",
-                    "voltage": "3.7V",
-                    "maxChargeCurrent": "2A",
-                    "maxDischargeCurrent": "3A",
-                    "operatingTemperature": "-20°C to 60°C",
-                },
-                "qualityControl": {
-                    "testResults": "PASSED",
-                    "inspector": "QC-123",
-                    "testDate": datetime.utcnow().isoformat() + "Z",
-                    "testBatch": "B2024-001",
+                "type": ["BatterySubject"],
+                "initialData": {
+                    "id": f"urn:uuid:{uuid.uuid4()}",
+                    "type": ["Genesis"],
+                    "name": f"Initial Battery VC for {serial_number}",
+                    "description": "This is the initial battery VC for the battery with serial number {serial_number}",
+                    "qualityControl": {
+                        "testResults": "PASSED",
+                        "inspector": "QC-123",
+                        "testDate": datetime.now(timezone.utc).isoformat() + "Z",
+                        "testBatch": "B2024-001",
+                    },
+                    "technicalDetails": {
+                        "capacity": "5000mAh",
+                        "chemistry": "Li-ion",
+                        "voltage": "3.7V",
+                        "maxChargeCurrent": "2A",
+                        "maxDischargeCurrent": "3A",
+                        "operatingTemperature": "-20°C to 60°C",
+                    },
+                    "image": {
+                        "id": "https://w3c-ccg.github.io/vc-ed/plugfest-3-2023/images/JFF-VC-EDU-PLUGFEST3-badge-image.png",
+                        "type": "Image",
+                    },
                 },
             },
         }
@@ -146,8 +175,7 @@ class OEMService:
             return {
                 "status": "success",
                 "message": "Battery VC created with selective disclosure",
-                "vc": result["credential"],
-                "vc_id": result["credential_id"],
+                "vc_offer": result,
             }
         else:
             return {"status": "error", "message": "Failed to create battery VC"}
@@ -181,6 +209,6 @@ class OEMService:
     def get_battery_did_by_serial_number(self, serial_number, token):
         all_dids = self.get_all_wallet_dids(token)
         for did in all_dids:
-            if did["alias"] == f"battery-{serial_number}":
+            if did["did"].split(":")[-1] == serial_number:
                 return did["did"]
         return None
