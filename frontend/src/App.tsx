@@ -78,26 +78,75 @@ function App() {
     ];
 
     return (
-      <Card>
-        <CardContent>
+      <Card 
+        elevation={3}
+        sx={{ 
+          borderRadius: 2,
+          border: '1px solid #e0e0e0',
+          '&:hover': {
+            boxShadow: 6
+          },
+          position: 'relative',
+          overflow: 'visible'
+        }}
+      >
+        <Typography 
+          sx={{ 
+            position: 'absolute',
+            top: -10,
+            left: 20,
+            backgroundColor: '#1976d2',
+            color: 'white',
+            padding: '4px 12px',
+            borderRadius: '12px',
+            fontSize: '0.875rem',
+            zIndex: 1
+          }}
+        >
+          Credential #{cred.id}
+        </Typography>
+        <CardContent sx={{ pt: 3 }}>
           {sections.map((section, idx) => (
-            <Box key={idx} sx={{ mb: 3 }}>
-              <Typography variant="h6" color="primary" gutterBottom>
+            <Box key={idx} sx={{ mb: idx < sections.length - 1 ? 4 : 0 }}>
+              <Typography 
+                variant="h6" 
+                color="primary" 
+                gutterBottom
+                sx={{
+                  borderBottom: '2px solid #1976d2',
+                  pb: 1,
+                  mb: 2
+                }}
+              >
                 {section.title}
               </Typography>
-              <Grid container spacing={2}>
+              <Grid container spacing={3}>
                 {section.fields.map((field, fieldIdx) => (
                   <Grid item xs={12} sm={6} key={fieldIdx}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      {field.label}:
-                    </Typography>
-                    <Typography sx={{ wordBreak: 'break-all' }}>
-                      {field.value || 'N/A'}
-                    </Typography>
+                    <Box sx={{ 
+                      backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                      p: 2,
+                      borderRadius: 1,
+                      height: '100%'
+                    }}>
+                      <Typography 
+                        variant="subtitle2" 
+                        color="primary"
+                        gutterBottom
+                        sx={{ fontWeight: 600 }}
+                      >
+                        {field.label}
+                      </Typography>
+                      <Typography sx={{ wordBreak: 'break-all' }}>
+                        {field.value || 'N/A'}
+                      </Typography>
+                    </Box>
                   </Grid>
                 ))}
               </Grid>
-              {idx < sections.length - 1 && <Divider sx={{ mt: 2 }} />}
+              {idx < sections.length - 1 && (
+                <Divider sx={{ mt: 4, borderColor: 'rgba(25, 118, 210, 0.12)' }} />
+              )}
             </Box>
           ))}
         </CardContent>
@@ -163,13 +212,22 @@ function App() {
                 label="Beautify"
               />
             </Box>
-            <Grid container spacing={2}>
+            <Grid container spacing={4}>
               {filteredCredentials.map((cred, index) => (
                 <Grid item xs={12} key={index}>
                   {isBeautified ? (
                     renderBeautifiedCredential(cred)
                   ) : (
-                    <Card>
+                    <Card 
+                      elevation={3}
+                      sx={{ 
+                        borderRadius: 2,
+                        border: '1px solid #e0e0e0',
+                        '&:hover': {
+                          boxShadow: 6
+                        }
+                      }}
+                    >
                       <CardContent>
                         <pre>{JSON.stringify(cred, null, 2)}</pre>
                       </CardContent>
