@@ -155,91 +155,97 @@ function App() {
   };
 
   return (
-    <Container>
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          OEM Wallet ID: {walletId}
-        </Typography>
+    <Box sx={{ 
+      minHeight: '100vh',
+      width: '100%',
+      pb: 4
+    }}>
+      <Container>
+        <Box sx={{ py: 4 }}>
+          <Typography variant="h4" gutterBottom>
+            OEM Wallet ID: {walletId}
+          </Typography>
 
-        <Typography variant="h5" gutterBottom>
-          DIDs
-        </Typography>
-        <Grid container spacing={2}>
-          {dids.map((did) => (
-            <Grid item xs={12} sm={6} md={4} key={did.did}>
-              <Card 
-                onClick={() => setSelectedDid(did.did)}
-                sx={{ 
-                  cursor: 'pointer', 
-                  bgcolor: selectedDid === did.did ? '#e3f2fd' : 'white',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}
-              >
-                <CardContent>
-                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                    DID:
-                  </Typography>
-                  <Typography 
-                    sx={{ 
-                      wordBreak: 'break-all',
-                      mb: 2
-                    }}
-                  >
-                    {did.did}
-                  </Typography>
-                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                    Internal ID:
-                  </Typography>
-                  <Typography sx={{ wordBreak: 'break-all' }}>
-                    {getLastComponent(did.did)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-
-        {selectedDid && (
-          <Box sx={{ mt: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h5">
-                Credentials for {selectedDid}
-              </Typography>
-              <FormControlLabel
-                control={<Switch checked={isBeautified} onChange={(e) => setIsBeautified(e.target.checked)} />}
-                label="Beautify"
-              />
-            </Box>
-            <Grid container spacing={4}>
-              {filteredCredentials.map((cred, index) => (
-                <Grid item xs={12} key={index}>
-                  {isBeautified ? (
-                    renderBeautifiedCredential(cred)
-                  ) : (
-                    <Card 
-                      elevation={3}
+          <Typography variant="h5" gutterBottom>
+            DIDs
+          </Typography>
+          <Grid container spacing={2}>
+            {dids.map((did) => (
+              <Grid item xs={12} sm={6} md={4} key={did.did}>
+                <Card 
+                  onClick={() => setSelectedDid(did.did)}
+                  sx={{ 
+                    cursor: 'pointer', 
+                    bgcolor: selectedDid === did.did ? '#e3f2fd' : 'white',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                      DID:
+                    </Typography>
+                    <Typography 
                       sx={{ 
-                        borderRadius: 2,
-                        border: '1px solid #e0e0e0',
-                        '&:hover': {
-                          boxShadow: 6
-                        }
+                        wordBreak: 'break-all',
+                        mb: 2
                       }}
                     >
-                      <CardContent>
-                        <pre>{JSON.stringify(cred, null, 2)}</pre>
-                      </CardContent>
-                    </Card>
-                  )}
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        )}
-      </Box>
-    </Container>
+                      {did.did}
+                    </Typography>
+                    <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                      Internal ID:
+                    </Typography>
+                    <Typography sx={{ wordBreak: 'break-all' }}>
+                      {getLastComponent(did.did)}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          {selectedDid && (
+            <Box sx={{ mt: 4 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h5">
+                  Credentials for {selectedDid}
+                </Typography>
+                <FormControlLabel
+                  control={<Switch checked={isBeautified} onChange={(e) => setIsBeautified(e.target.checked)} />}
+                  label="Beautify"
+                />
+              </Box>
+              <Grid container spacing={4}>
+                {filteredCredentials.map((cred, index) => (
+                  <Grid item xs={12} key={index}>
+                    {isBeautified ? (
+                      renderBeautifiedCredential(cred)
+                    ) : (
+                      <Card 
+                        elevation={3}
+                        sx={{ 
+                          borderRadius: 2,
+                          border: '1px solid #e0e0e0',
+                          '&:hover': {
+                            boxShadow: 6
+                          }
+                        }}
+                      >
+                        <CardContent>
+                          <pre>{JSON.stringify(cred, null, 2)}</pre>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
+        </Box>
+      </Container>
+    </Box>
   );
 }
 
