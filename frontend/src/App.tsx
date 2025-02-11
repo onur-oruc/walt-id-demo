@@ -45,11 +45,32 @@ function App() {
             <Grid item xs={12} sm={6} md={4} key={did.did}>
               <Card 
                 onClick={() => setSelectedDid(did.did)}
-                sx={{ cursor: 'pointer', bgcolor: selectedDid === did.did ? '#e3f2fd' : 'white' }}
+                sx={{ 
+                  cursor: 'pointer', 
+                  bgcolor: selectedDid === did.did ? '#e3f2fd' : 'white',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
               >
                 <CardContent>
-                  <Typography>DID: {did.did}</Typography>
-                  <Typography>Internal ID: {getLastComponent(did.did)}</Typography>
+                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    DID:
+                  </Typography>
+                  <Typography 
+                    sx={{ 
+                      wordBreak: 'break-all',
+                      mb: 2
+                    }}
+                  >
+                    {did.did}
+                  </Typography>
+                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    Internal ID:
+                  </Typography>
+                  <Typography sx={{ wordBreak: 'break-all' }}>
+                    {getLastComponent(did.did)}
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
