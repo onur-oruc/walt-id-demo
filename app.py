@@ -114,6 +114,12 @@ async def get_battery_did_by_serial_number(
     return oem.get_battery_did_by_serial_number(serial_number, current_user["token"])
 
 
+@app.get("/oem/wallet/credentials")
+async def get_all_wallet_credentials(current_user: dict = Depends(get_current_user)):
+    oem = OEMService()
+    return oem.get_all_wallet_credentials(current_user["token"])
+
+
 if __name__ == "__main__":
     import uvicorn
 

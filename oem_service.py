@@ -206,6 +206,15 @@ class OEMService:
         response = requests.get(url, headers=headers)
         return response.json()
 
+    def get_all_wallet_credentials(self, token):
+        url = f"{self.wallet_api}/wallet-api/wallet/{self.wallet_id}/credentials"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        response = requests.get(url, headers=headers)
+        return response.json()
+
     def get_battery_did_by_serial_number(self, serial_number, token):
         all_dids = self.get_all_wallet_dids(token)
         for did in all_dids:
