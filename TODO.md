@@ -1,4 +1,5 @@
 - [ ] Create a repairer that has the permission to append logs and show that they can issue VCs.
 - [ ] Create a repairer that DOES NOT have the permission to append logs and show that the attemps are rejected.
 - [ ] Create a verifier and display in the UI that they can see the chain of history.
-- [ ] 
+- [ ] Define the initial SD fields in the initial VC creation.
+- [ ] Function to accept credential offer the battery.
